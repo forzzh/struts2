@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+<!--是否支持动态方法调用 -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <constant name="struts.devMode" value="true" />
+<!-- 	全局国际化配置 -->
+	<constant name="struts.custom.i18n.resources" value="messages"></constant>
+<!-- struts2的包 -->
+    <package name="basicstruts2" namespace="/" extends="struts-default">
+    <interceptors>
+    <!-- 注册拦截器 -->
+    	<interceptor name="login" class="struts.user.web.interceptor.LoginInterceptor"></interceptor>
+    	<interceptor name="myexception" class="struts.user.web.interceptor.MyExceptionInterceptor"></interceptor>
+    	<interceptor-stack name="myStack">
+    		<interceptor-ref name="defaultStack"></interceptor-ref>
+    		<interceptor-ref name="login"></interceptor-ref>
+    		<interceptor-ref name="myexception"></interceptor-ref>
+    	</interceptor-stack>
+    </interceptors>
+    
+    <!-- 设置默认拦截器栈 -->
+	<default-interceptor-ref name="myStack"></default-interceptor-ref>    
+    
+    <!-- 如果没有登陆(全局结果集) -->
+    <global-results>
+    	<result name="login">/login/login.jsp</result>
+    	<result name="error">/error.jsp</result>
+    </global-results>
+    
+    <global-exception-mappings>
+    	<!-- 全局错误页面 -->
+    	<exception-mapping result="error" exception="java.lang.exception"></exception-mapping>
+    </global-exception-mappings>
+    
+    	<action name="index">
+    		<result>index.jsp</result>
+    	</action>
+    	<!-- 员工操作 -->
+    	<action name="user_*" class="struts.user.web.action.UserAction" method="{1}">
+    		<!-- 校验失败 -->
+    		<result name="loginINPUT">/login/login.jsp</result>
+    		<result name="addINPUT">/user/add.jsp</result>
+    		<!-- 校验成功 -->
+    		<result name="loginSUCCESS">/login/home.jsp</result> 
+    		<result name="addSUCCESS" type="redirectAction">user_list</result> 
+    		
+    		<result name="listSUCCESS">/user/list.jsp</result> 
+    		<result name="deleteSUCCESS" type="redirectAction">user_list</result> 
+    		<result name="viewSUCCESS">/user/view.jsp</result> 
+    		
+    		<result name="downloadSUCCESS" type="stream">
+    			<param name="contentType">${contentType}</param>
+    			<param name="contentDisposition">attachment;filename=${downloadFilename}</param>
+    		</result> 
+    		<result name="editviewSUCCESS">/user/edit.jsp</result>
+    		<result name="editINPUT">/user/edit.jsp</result>
+    		<result name="editSUCCESS" type="redirectAction">user_list</result>
+    		
+    		<!-- 配置拦截器参数 -->
+    		<interceptor-ref name="myStack">
+    			<param name="login.excludeMethods">user_login</param>
+    		</interceptor-ref>
+    	</action>
+    </package>
+
+   
+
+    <!-- Add packages here -->
+
+</struts>
